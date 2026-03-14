@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hussein Ali Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Cinzel"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        'film-black': '#050505',
+                        'film-gray': '#121212',
+                        'film-accent': '#e50914',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e50914; }
+
+        .play-button { transition: all 0.3s ease; }
+        .film-card:hover .play-button {
+            transform: scale(1.1);
+            background-color: #e50914;
+        }
+        
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #050505;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .reel-animation {
+            animation: spin 4s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .custom-play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        .custom-play-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .film-card.playing .custom-play-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-film-black text-gray-200 font-sans antialiased selection:bg-film-accent selection:text-white">
+
+    <div id="loader">
+        <div class="text-center">
+            <svg class="w-16 h-16 text-film-accent mx-auto mb-4 reel-animation" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+            </svg>
+            <p class="font-serif text-xl tracking-widest text-film-accent">DIRECTOR'S CUT</p>
+        </div>
+    </div>
+
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-6 px-6 md:px-12 border-b border-transparent">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-serif font-bold tracking-tighter text-white group">
+                HUSSEIN<span class="text-film-accent group-hover:text-white transition-colors">.</span>ALI
+            </a>
+            
+            <div class="hidden md:flex space-x-8 text-sm font-medium tracking-widest uppercase">
+                <a href="#home" class="hover:text-film-accent transition-colors relative group">
+                    Home
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-film-accent transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#about" class="hover:text-film-accent transition-colors relative group">
+                    About
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-film-accent transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#films" class="hover:text-film-accent transition-colors relative group">
+                    Films
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-film-accent transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#contact" class="hover:text-film-accent transition-colors relative group">
+                    Contact
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-film-accent transition-all group-hover:w-full"></span>
+                </a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="fixed inset-0 bg-film-black bg-opacity-95 z-40 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center space-y-8 md:hidden">
+            <button id="close-menu-btn" class="absolute top-6 right-6 text-white">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <a href="#home" class="text-2xl font-serif hover:text-film-accent mobile-link">Home</a>
+            <a href="#about" class="text-2xl font-serif hover:text-film-accent mobile-link">About</a>
+            <a href="#films" class="text-2xl font-serif hover:text-film-accent mobile-link">Films</a>
+            <a href="#contact" class="text-2xl font-serif hover:text-film-accent mobile-link">Contact</a>
+        </div>
+    </nav>
+
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+       <div class="absolute inset-0 z-0">
+    <img src="https://drive.google.com/thumbnail?id=1tEK7HKvRc2-iuOPwSJGn_EgM0iP6seUX&sz=w1920" 
+         alt="Cinema Background" 
+         class="w-full h-full object-cover opacity-70 scale-110"
+         id="hero-bg">
+    <div class="absolute inset-0 bg-gradient-to-b from-film-black/50 via-film-black/80 to-film-black"></div>
+</div>
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            <p class="text-film-accent font-medium tracking-[0.3em] uppercase mb-4 animate-fade-in-up" style="animation-delay: 0.2s;">Director & Producer</p>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.4s;">
+                Stories in <span class="italic text-transparent bg-clip-text bg-gradient-to-r from-film-accent to-red-400">Motion</span>
+            </h1>
+            <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light animate-fade-in-up" style="animation-delay: 0.6s;">
+            </p>
+            <div class="animate-fade-in-up" style="animation-delay: 0.8s;">
+                <a href="#films" class="inline-flex items-center justify-center px-8 py-4 border border-white text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest text-sm font-semibold rounded">
+                    View Films
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 md:py-32 bg-film-black relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="relative group reveal-on-scroll">
+                    <div class="absolute -inset-4 bg-film-accent/20 rounded-lg blur-lg group-hover:bg-film-accent/30 transition-all duration-500"></div>
+                    <img src="https://drive.google.com/thumbnail?id=1Vv4ns3GzKQ-z9b9OojcBDTg5m7A4BQvk&sz=w1000" 
+                         alt="Director on Set" 
+                         class="relative rounded-lg shadow-2xl w-full object-cover h-[500px] grayscale hover:grayscale-0 transition-all duration-700">
+                    <div class="absolute bottom-4 left-4 bg-black/80 px-4 py-2 rounded">
+                        <p class="text-film-accent text-sm font-bold">HUSSEIN ALI</p>
+                    </div>
+                </div>
+
+                <div class="reveal-on-scroll">
+                    <h2 class="text-film-accent font-medium tracking-widest uppercase mb-2">About Me</h2>
+                    <h3 class="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Behind The Camera</h3>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        I'm a final-year student in film and TV production, driven by a passion for visual storytelling. My journey began with curiosity and a camera, exploring the power of moving images to capture human emotion and complex narratives. Today, I craft short films and projects that challenge perspectives and resonate with audiences on a deeper level.
+                    </p>
+                    <p class="text-gray-400 mb-8 leading-relaxed">
+                        I focus on cinematography, directing, and post-production, developing a distinctive visual language in every frame. Through my studies and practical work, I continue to refine my craft and explore new ways to bring stories to life.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="mb-1">
+                                <span class="text-sm font-medium text-white">Directing</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-1.5">
+                                <div class="bg-film-accent h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mb-1">
+                                <span class="text-sm font-medium text-white">Cinematography</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-1.5">
+                                <div class="bg-film-accent h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mb-1">
+                                <span class="text-sm font-medium text-white">Editing/Post</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-1.5">
+                                <div class="bg-film-accent h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="films" class="py-24 bg-film-gray relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal-on-scroll">
+                <h2 class="text-film-accent font-medium tracking-widest uppercase mb-2">Portfolio</h2>
+                <h3 class="text-4xl md:text-5xl font-serif font-bold text-white">Short Films</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="films-grid">
+                
+                <!-- FILM 1: Rött handtag -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="thriller"
+                     data-video-id="1L2vZxakpd7FS_zJtzBtCAVM5uAPrqQui">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=1hb6A19GpbBoXNsItRhRxf5SOy9Qs6U4b&sz=w1000" 
+                             alt="Rött handtag" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">4 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">Rött handtag</h4>
+                        <p class="text-gray-400 text-sm mb-3">A young woman spends an evening with her boyfriend, but a heated argument during the night ends in tragedy.‎</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Thriller / Drama</span>
+                            <span>2025 / Role: Cameraman</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 1 -->
+
+                <!-- FILM 2: Short Film – Det Skvallrande hjärta (swapped from position 5) -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="thriller"
+                     data-video-id="1GR4vtlOCjUK4AS0gooy9ZuEOHfqBsXew">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=1VGn7FK0izeXCogrrpJmPPfk6jXajkdPO&sz=w1000" 
+                             alt="Short Film – Det Skvallrande hjärta" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">6 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">Short Film – Det Skvallrande hjärta</h4>
+                        <p class="text-gray-400 text-sm mb-3">A young caregiver struggling with psychological disorders descends into violence, ultimately murdering one of the elderly people under his care. </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Crime / Thriller</span>
+                            <span>2023 / Role: Cameraman</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 2 -->
+
+                <!-- FILM 3: Short Documentary – Lia Larsson (swapped from position 4) -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="documentary"
+                     data-video-id="1aCCrNCaYA9U547v5fwG5NCv84r1WrNEK">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=18R-FLQIpgtG9i4v_kpdoZH6kq6nmftyb&sz=w1000" 
+                             alt="Short Documentary – Lia Larsson" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">10 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">Short Documentary – Lia Larsson</h4>
+                        <p class="text-gray-400 text-sm mb-3">A short documentary following YouTuber and rising singer Lia Larsson, exploring her journey to fame and creative process.</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Documentary</span>
+                            <span>2024 / Role: Cameraman</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 3 -->
+
+                <!-- FILM 4: TV Report – Skate Inslag (swapped from position 2) -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="documentary"
+                     data-video-id="1uWFxs1X4PJTg6jwN2USdsFpmpspo0ljw">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=10R7uoSLgH8VgOk4-AKSrJd5aOcWbAB3e&sz=w1000" 
+                             alt="TV Report – Skate Inslag" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">2 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">TV Report – Skate Inslag</h4>
+                        <p class="text-gray-400 text-sm mb-3">A report on safety and community at a Falun skate park, featuring young skaters balancing access with practical risks.</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Reportage</span>
+                            <span>2024 / Role: Cameraman</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 4 -->
+
+                <!-- FILM 5: Hockey Match (swapped from position 3) -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="sport"
+                     data-video-id="13cjTEBqas6IwrAb5FycJ56QMrt1LY2d0">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=1iN0C_DchqRq9gtSaC2dllpWmBhJj7vF5&sz=w1000" 
+                             alt="Hockey Match" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">7 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">Hockey Match</h4>
+                        <p class="text-gray-400 text-sm mb-3">Live broadcast of the hockey match between Borlänge and Falun.‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Sport</span>
+                            <span>2025 / Role: Broadcast Director</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 5 -->
+
+                <!-- FILM 6: No Game Name -->
+                <div class="film-card group relative rounded-lg overflow-hidden shadow-lg reveal-on-scroll bg-film-black" 
+                     data-category="gameshow"
+                     data-video-id="1p4PkbLZUdAzGn_6EPWt9tq9prs2TNoiL">
+                    <div class="relative aspect-video overflow-hidden bg-black">
+                        <img src="https://drive.google.com/thumbnail?id=1BwtIZpx7giHo1aqXgqqNFdz2I7bLcnV2&sz=w1000" 
+                             alt="No Game Name" 
+                             class="w-full h-full object-cover poster-image">
+                        <div class="custom-play-overlay" onclick="playVideo(this)">
+                            <div class="w-20 h-20 bg-film-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50 hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 5.84a.5.5 0 01.77-.42l7.15 4.16a.5.5 0 010 .84l-7.15 4.16a.5.5 0 01-.77-.42V5.84z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-film-accent text-white text-xs font-bold px-2 py-1 rounded z-20 pointer-events-none">3 MIN</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-serif text-white mb-2 group-hover:text-film-accent transition-colors">No Game Name</h4>
+                        <p class="text-gray-400 text-sm mb-3">A quiz show featuring three contestants and a host.</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+                            <span>Game Show</span>
+                            <span>2025 / Role: On-Air Director</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FILM 6 -->
+
+            </div>
+        </div>
+    </section>
+
+    <div id="videoModal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4">
+        <button onclick="closeVideo()" class="absolute top-6 right-6 text-white hover:text-film-accent transition-colors z-50">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <div class="w-full max-w-6xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl relative">
+            <iframe id="videoFrame" class="w-full h-full" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
+    </div>
+
+    <section id="contact" class="py-24 bg-film-black relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-film-accent/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-red-500/5 rounded-full blur-3xl"></div>
+
+        <div class="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="text-center mb-16 reveal-on-scroll">
+                <h2 class="text-film-accent font-medium tracking-widest uppercase mb-2">Get In Touch</h2>
+                <h3 class="text-4xl md:text-5xl font-serif font-bold text-white">Let's Make a Film Together</h3>
+                <p class="text-gray-400 mt-4 max-w-xl mx-auto">Open for collaborations, freelance projects, and festival submissions.</p>
+            </div>
+
+            <div class="bg-film-gray p-8 md:p-12 rounded-2xl shadow-2xl border border-gray-800 reveal-on-scroll">
+                <form action="https://formsubmit.co/hu900ssen@gmail.com" method="POST" class="space-y-6">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-gray-300 uppercase tracking-wider">Name</label>
+                            <input type="text" name="name" class="w-full bg-film-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-film-accent focus:ring-1 focus:ring-film-accent transition-colors" placeholder="Your Name" required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-gray-300 uppercase tracking-wider">Email</label>
+                            <input type="email" name="email" class="w-full bg-film-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-film-accent focus:ring-1 focus:ring-film-accent transition-colors" placeholder="you@email.com" required>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-300 uppercase tracking-wider">Project Type</label>
+                        <select name="project_type" class="w-full bg-film-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-film-accent focus:ring-1 focus:ring-film-accent transition-colors">
+                            <option>Short Film Collaboration</option>
+                            <option>Music Video</option>
+                            <option>Commercial/Ad</option>
+                            <option>Festival Submission</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-300 uppercase tracking-wider">Message</label>
+                        <textarea name="message" rows="5" class="w-full bg-film-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-film-accent focus:ring-1 focus:ring-film-accent transition-colors" placeholder="Tell me about your project..." required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-film-accent text-white font-bold py-4 rounded-lg hover:bg-red-700 transition-colors duration-300 uppercase tracking-widest">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-12 text-center reveal-on-scroll">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-film-gray rounded-full border border-gray-800 text-film-accent mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <h4 class="text-white font-serif text-lg mb-1">Email</h4>
+                <p class="text-gray-400 text-sm">hu900ssen@gmail.com</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black py-8 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 text-center">
+            <p class="text-gray-500 text-sm">&copy; 2026 Hussein Ali. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        });
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-film-black/90', 'backdrop-blur-md', 'shadow-lg', 'py-4', 'border-gray-800');
+                navbar.classList.remove('py-6', 'border-transparent');
+            } else {
+                navbar.classList.remove('bg-film-black/90', 'backdrop-blur-md', 'shadow-lg', 'py-4', 'border-gray-800');
+                navbar.classList.add('py-6', 'border-transparent');
+            }
+        });
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        function toggleMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+        }
+        
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu);
+        document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', toggleMenu));
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                    entry.target.style.opacity = '1';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const heroBg = document.getElementById('hero-bg');
+            if (heroBg) {
+                heroBg.style.transform = `translateY(${scrolled * 0.5}px) scale(1.1)`;
+            }
+        });
+
+        function playVideo(element) {
+            const card = element.closest('.film-card');
+            const videoId = card.getAttribute('data-video-id');
+            
+            if (!videoId) return;
+            
+            const embedUrl = `https://drive.google.com/file/d/${videoId}/preview`;
+            
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            
+            iframe.src = embedUrl;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            
+            iframe.src = '';
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideo();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVideo();
+            }
+        });
+    </script>
+</body>
+</html>
